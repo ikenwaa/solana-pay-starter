@@ -1,6 +1,6 @@
 .App {
   height: 100vh;
-  background-color: rgb(20, 20, 20);
+  background: #121212 ;
   text-align: center;
   overflow: hidden;
 }
@@ -24,12 +24,12 @@
 
 .header {
   margin: 0;
-  font-size: 50px;
+  font-size: 40px;
   font-weight: bold;
 }
 
 .sub-text {
-  font-size: 25px;
+  font-size: 20px;
 }
 
 .gradient-text {
@@ -64,6 +64,7 @@
   background-size: 200% 200%;
   animation: gradient-animation 4s ease infinite;
   max-width: 300px;
+  margin-bottom: 50px;
 }
 
 .mint-button {
@@ -92,7 +93,7 @@ button:disabled {
   width: 100%;
   bottom: 0;
   left: 0;
-  padding-bottom: 20px;
+  margin: 0;
 }
 
 .twitter-logo {
