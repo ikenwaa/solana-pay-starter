@@ -27,7 +27,7 @@ const App = () => {
       <HeadComponent/>
       <div className="container">
         <header className="header-container">
-          <p className="header">👟 Welcome to Augustine's Sneakerz Store 👟</p>
+          <p className="header">👟 Welcome to <span>Augustine</span> Sneakerz eShop 👟</p>
           <p className="sub-text">The only sneakerz shop that accepts sh*tcoins for dope sh*t... No CAP 👌</p>
         </header>
 
@@ -38,12 +38,13 @@ const App = () => {
 
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src="twitter-logo.svg" />
+          <p className="footer-text">Built by&nbsp;
           <a
-            className="footer-text"
-            href={TWITTER_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >{`Built by @${TWITTER_HANDLE}`}</a>
+              href={TWITTER_LINK}
+              target="_blank"
+              rel="noreferrer"
+            >{`@${TWITTER_HANDLE}`}</a>
+          </p>
         </div>
       </div>
     </div>
