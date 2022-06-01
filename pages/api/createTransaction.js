@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js'
 import products from './products.json'
 
 const sellerAddress = "6d2zjJN7JHbHhX2qdHY4kRkRP7YhTdX6Ca9chpqkPGbR"
-const sellerPublicAddress = new PublicKey(sellerAddress);
+const sellerPublicKey = new PublicKey(sellerAddress);
 
 const createTransaction = async (req, res) => {
     try {
@@ -82,6 +82,7 @@ const createTransaction = async (req, res) => {
         console.log(err);
 
         res.status(500).json({ error: "Error creating the transaction"});
+        return;
     }
 }
 

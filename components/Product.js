@@ -1,8 +1,8 @@
 import React from 'react'
 import styles from '../styles/Product.module.css'
-import IPFSDownload from './IpfsDownload'
+import Buy from './Buy';
 
-export default function Product({product}){
+export default function Product({ product }){
     const { id, name, price, image_url } = product;
 
     return (
@@ -19,7 +19,8 @@ export default function Product({product}){
 
                 <div className={styles.product_action}>
                     <div className={styles.product_price}>{price} USDT</div>
-                    <IPFSDownload filename="storage_boxes.zip" hash="QmRcNVdvrCBkLTpLNMjz3iuu7Z79y1X8ihyVqvzquPqZDF" cta="Buy Now" />
+                    {/* <IPFSDownload filename="storage_boxes.zip" hash="QmRcNVdvrCBkLTpLNMjz3iuu7Z79y1X8ihyVqvzquPqZDF" cta="Buy Now" /> */}
+                    <Buy itemID={id} />
                 </div>
             </div>
         </div>
