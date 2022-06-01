@@ -1,5 +1,6 @@
 import React from 'react';
 import useIPFS from '../hooks/useIPFS';
+import styles from '../styles/Product.module.css'
 
 const IPFSDownload = ({ hash, filename}) => {
     const file = useIPFS(hash, filename);

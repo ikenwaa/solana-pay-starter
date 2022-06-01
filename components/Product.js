@@ -14,12 +14,12 @@ export default function Product({product}){
             <div className={styles.product_details}>
                 <div className={styles.product_text}>
                     <div className={styles.product_title}>{name}</div>
-                    <div className={styles.product_description}>{description}</div>
+                    {/* <div className={styles.product_description}>{description}</div> */}
                 </div>
 
                 <div className={styles.product_action}>
                     <div className={styles.product_price}>{price} USDT</div>
-                    <IPFSDownload filename="sneakers.zip" hash="" cta="Buy Now" />
+                    <IPFSDownload filename="storage_boxes.zip" hash="QmRcNVdvrCBkLTpLNMjz3iuu7Z79y1X8ihyVqvzquPqZDF" cta="Buy Now" />
                 </div>
             </div>
         </div>
