@@ -17,5 +17,78 @@ const createTransaction = async (req, res) => {
     try {
         // Extract the transaction data from the request body.
         const { buyer, orderID, itemID } = req.body;
+
+        // Check if something is missing then stop the transaction
+        if(!buyer) {
+            return res.status(400).json({
+                message: "Missing buyer address",
+            });
+        }
+        if(!orderID) {
+            return res.status(400).json({
+                message: "Missing order ID",
+            });
+        }
+        // Fetch item price from products.json using itemID
+        const itemPrice = products.find((item) => item.id === itemID).price;
+
+        if (!itemPrice){
+            return res.status(400).json({
+                message: "Item not found. Please check item ID",
+            })
+        }
+        // Convert price to correct format
+        const bigAmount = BigNumber(itemPrice);
+        const buyerPublicKey = new PublicKey(buyer);
+        const network = WalletAdapterNetwork.Devnet;
+        const endpoint = clusterApiUrl(network);
+        const connection = new Connection(endpoint);
+
+        // Create blockhash for identifying each block.
+        const { blockhash } = await connection.getLatestBlockhash("finalized");
+
+        // Extract recent block ID and buyer's public address
+        const tx = new Transaction({
+            recentBlockhash: blockhash,
+            feePayer: buyerPublicKey,
+        });
+
+        // Transfer some SOL
+        const transferInstruction = SystemProgram.transfer({
+            fromPubkey: buyerPublicKey,
+            lamports: bigAmount.multipliedBy(LAMPORTS_PER_SOL).toNumber(),
+            toPubkey: sellerPublicKey,
+        });
+
+        // Additional transfer instructions for transactions
+        transferInstruction.keys.push({
+            // Use OrderID to find transaction
+            pubkey: new PublicKey(orderID),
+            isSigner: false,
+            isWritable: false,
+        });
+        tx.add(transferInstruction);
+
+        // Format the transaction
+        const serializedTransaction = tx.serialize({
+            requireAllSignatures: false,
+        });
+        const base64 = serializedTransaction.toString("base64");
+
+        res.status(200).json({
+            transaction: base64,
+        });
+    } catch (err){
+        console.log(err);
+
+        res.status(500).json({ error: "Error creating the transaction"});
+    }
+}
+
+export default function handler(req,res){
+    if (req.method === "POST"){
+        createTransaction(req,res);
+    } else {
+        res.status(405).end();
     }
 }
