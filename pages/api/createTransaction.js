@@ -10,6 +10,7 @@ import {
 import BigNumber from 'bignumber.js'
 import products from './products.json'
 
+const usdcAddress = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr")
 const sellerAddress = "6d2zjJN7JHbHhX2qdHY4kRkRP7YhTdX6Ca9chpqkPGbR"
 const sellerPublicKey = new PublicKey(sellerAddress);
 
@@ -40,12 +41,18 @@ const createTransaction = async (req, res) => {
         // Convert price to correct format
         const bigAmount = BigNumber(itemPrice);
         const buyerPublicKey = new PublicKey(buyer);
+
         const network = WalletAdapterNetwork.Devnet;
         const endpoint = clusterApiUrl(network);
         const connection = new Connection(endpoint);
 
+        const buyerUsdcAddress = await getAssociatedTokenAddress(usdcAddress, buyerPublicKey);
+        const shopUsdcAddress = await getAssociatedTokenAddress(usdcAddress, sellerPublicKey);
         // Create blockhash for identifying each block.
         const { blockhash } = await connection.getLatestBlockhash("finalized");
+
+        // Get the mint address of USDC token
+        const usdcMint = await getMint(connection, usdcAddress);
 
         // Extract recent block ID and buyer's public address
         const tx = new Transaction({
@@ -54,11 +61,14 @@ const createTransaction = async (req, res) => {
         });
 
         // Transfer some SOL
-        const transferInstruction = SystemProgram.transfer({
-            fromPubkey: buyerPublicKey,
-            lamports: bigAmount.multipliedBy(LAMPORTS_PER_SOL).toNumber(),
-            toPubkey: sellerPublicKey,
-        });
+        const transferInstruction = createTransferCheckedInstruction(
+            buyerUsdcAddress,
+            usdcAddress, // This is the address of the token to transfer
+            shopUsdcAddress,
+            buyerPublicKey,
+            bigAmount.toNumber() * 10 ** (await usdcMint).decimals,
+            usdcMint.decimals
+        );
 
         // Additional transfer instructions for transactions
         transferInstruction.keys.push({
