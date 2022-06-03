@@ -3,10 +3,9 @@ import {
     clusterApiUrl,
     Connection,
     PublicKey,
-    Transaction,
-    SystemProgram,
-    LAMPORTS_PER_SOL
+    Transaction
 } from "@solana/web3.js";
+import { createTransferCheckedInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
 import BigNumber from 'bignumber.js'
 import products from './products.json'
 
