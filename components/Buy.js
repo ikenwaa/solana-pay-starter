@@ -1,8 +1,15 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Keypair, Transaction } from "@solana/web3.js";
+import { findReference, FindReferenceError } from "@solana/pay"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InfinitySpin } from "react-loader-spinner";
 import IPFSDownload from "./IpfsDownload";
+
+const STATUS = {
+    Initial: "Initial",
+    Submitted: "Submitted",
+    Paid: "Paid",
+}
 
 export default function Buy({ itemID }){
     const { connection } = useConnection();
@@ -10,8 +17,9 @@ export default function Buy({ itemID }){
     // Generate public key that will be used to identify the order
     const orderID = useMemo(() => Keypair.generate().publicKey, []);
 
-    const [paid, setPaid] = useState(null);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    // Track status of transaction
+    const [ status, setStatus ] = useState(STATUS.Initial);
 
     // useMemo() computes the values if the dependecies change
     const order = useMemo(
@@ -44,13 +52,42 @@ export default function Buy({ itemID }){
             // Send the transaction to the network
             const txHash = await sendTransaction(tx, connection);
             console.log(`Transaction sent: https://solscan.io/tx/${txHash}?cluster=devnet`);
-            setPaid(true);
+            setStatus(STATUS.Submitted);
         } catch (err){
             console.log(err)
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        // Check if transaction was confirmed
+        if (status === STATUS.Submitted){
+            setLoading(true);
+            const interval = setInterval(async () => {
+                try {
+                    const result = await findReference(connection, orderID);
+                    console.log("Finding tx reference", result.confirmationStatus);
+                    if (result.confirmationStatus === "confirmed" || result.confirmationStatus === "finalized"){
+                        clearInterval(interval);
+                        setStatus(STATUS.Paid);
+                        setLoading(false);
+                        alert("Thank you for your purchase!");
+                    }
+                } catch (e){
+                    if (e instanceof FindReferenceError){
+                        return null;
+                    }
+                    console.error("Unknown error", e);
+                } finally {
+                    setLoading(false);
+                }
+            }, 1000);
+            return () => {
+                clearInterval(interval)
+            };
+        }
+    }, [status]);
 
     if (!publicKey) {
         return (
@@ -66,7 +103,7 @@ export default function Buy({ itemID }){
 
     return (
         <div>
-            {paid ? (
+            {status === STATUS.Paid ? (
                 <IPFSDownload filename="storage_boxes.zip" hash="QmRcNVdvrCBkLTpLNMjz3iuu7Z79y1X8ihyVqvzquPqZDF" cta="Download images" />
             ) : (
                 <button disabled={loading} className="buy-button" onClick={processTransaction}>
