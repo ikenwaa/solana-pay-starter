@@ -4,6 +4,7 @@ import { findReference, FindReferenceError } from "@solana/pay"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InfinitySpin } from "react-loader-spinner";
 import IPFSDownload from "./IpfsDownload";
+import { addOrder } from "../lib/api";
 
 const STATUS = {
     Initial: "Initial",
@@ -72,6 +73,7 @@ export default function Buy({ itemID }){
                         clearInterval(interval);
                         setStatus(STATUS.Paid);
                         setLoading(false);
+                        addOrder(order);
                         alert("Thank you for your purchase!");
                     }
                 } catch (e){
